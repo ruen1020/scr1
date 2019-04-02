@@ -91,8 +91,8 @@ ACC #(
     .rst_n(rst_n),
     //input enable
     .enable(enable),
-    .addr_in(),
-    .data_in(dmem_addr),
+    .addr_in(dmem_addr),
+    .data_in(dmem_writedata),
     .data_mem(dmem_rdata),
     .data_out(data_out),
     .wenb(acc_wenb),
