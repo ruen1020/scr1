@@ -53,6 +53,11 @@ logic                               acc_wenb;
 logic                               acc_renb;
 logic                               enable;
 logic [`SCR1_DMEM_DWIDTH-1:0]       data_out;
+logic [`SCR1_DMEM_DWIDTH-1:0]       mux_dmem_writedata;
+logic                               mux_dem_rd;
+logic                               mux_dem_wr;
+logic [$clog2(SCR1_TCM_SIZE)-1:2]   mux_addr_mem;
+logic [3:0]                         acc_webb; 
 //-------------------------------------------------------------------------------
 // Core interface
 //-------------------------------------------------------------------------------
@@ -87,13 +92,13 @@ ACC #(
     //input enable
     .enable(enable),
     .addr_in(),
-    .data_in(),
-    .data_mem(),
+    .data_in(dmem_addr),
+    .data_mem(dmem_rdata),
     .data_out(data_out),
     .wenb(acc_wenb),
     .renb(acc_renb),
-    .addr_mem(),
-    .webb()
+    .addr_mem(addr_mem),
+    .webb(acc_webb)
 );
 //-------------------------------------------------------------------------------
 // Memory data composing
@@ -122,16 +127,25 @@ end
 // Mux
 //-------------------------------------------------------------------------------
   always @(*) begin
-      dmem_wr = (enable) ? dmem_wr : acc_wenb;
+      mux_dmem_wr = (enable) ? dmem_wr : acc_wenb;
   end
 
   always @(*) begin
-      dmem_rd = (enable) ? dmem_rd : acc_renb;
+      mux_dmem_rd = (enable) ? dmem_rd : acc_renb;
   end
     
   always @(*) begin
-      data_writedata = (enable) ? data_writedata : data_out;
+      mux_dmem_writedata = (enable) ? dmem_writedata : data_out;
   end
+
+  always @(*) begin
+      mux_addr_mem = (enable) ? dmem_addr[$clog2(SCR1_TCM_SIZE)-1:2] : addr_mem;
+  end
+
+  always @(*) begin
+      mux_webb = (enable) ? dmem_byteen : acc_webb;
+  end
+    
 //-------------------------------------------------------------------------------
 // Memory instantiation
 //-------------------------------------------------------------------------------
@@ -147,12 +161,12 @@ scr1_dp_memory #(
     .qa     ( imem_rdata                            ),
     // Data port
     // Port B
-    .renb   ( dmem_rd                               ),
-    .wenb   ( dmem_wr                               ),
-    .webb   ( dmem_byteen                           ),
-    .addrb  ( dmem_addr[$clog2(SCR1_TCM_SIZE)-1:2]  ),
-    .qb     ( dmem_rdata_local                      ),
-    .datab  ( dmem_writedata                        )
+    .renb   ( mux_dmem_rd                               ),
+    .wenb   ( mux_dmem_wr                               ),
+    .webb   ( mux_webb                                  ),
+    .addrb  ( mux_addr_mem                              ),
+    .qb     ( dmem_rdata_local                          ),
+    .datab  ( mux_dmem_writedata                        )
 );
 //-------------------------------------------------------------------------------
 // Data memory output generation
