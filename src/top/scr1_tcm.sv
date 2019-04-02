@@ -48,6 +48,12 @@ logic [`SCR1_DMEM_DWIDTH-1:0]       dmem_rdata_local;
 logic [3:0]                         dmem_byteen;
 logic [1:0]                         dmem_rdata_shift_reg;
 //-------------------------------------------------------------------------------
+//ACC signal declaration
+logic                               acc_wenb;
+logic                               acc_renb;
+logic                               enable;
+logic [`SCR1_DMEM_DWIDTH-1:0]       data_out;
+//-------------------------------------------------------------------------------
 // Core interface
 //-------------------------------------------------------------------------------
 assign imem_req_en = (imem_resp == SCR1_MEM_RESP_RDY_OK) ^ imem_req;
@@ -71,6 +77,24 @@ end
 
 assign imem_req_ack = 1'b1;
 assign dmem_req_ack = 1'b1;
+//-------------------------------------------------------------------------------    
+// Accelerator instantiation
+//-------------------------------------------------------------------------------    
+ACC #(
+) acc_dp_mem(
+    .clk(clk),
+    .rst_n(rst_n),
+    //input enable
+    .enable(enable),
+    .addr_in(),
+    .data_in(),
+    .data_mem(),
+    .data_out(data_out),
+    .wenb(acc_wenb),
+    .renb(acc_renb),
+    .addr_mem(),
+    .webb()
+);
 //-------------------------------------------------------------------------------
 // Memory data composing
 //-------------------------------------------------------------------------------
@@ -94,6 +118,20 @@ always_comb begin
         end
     endcase
 end
+//-------------------------------------------------------------------------------
+// Mux
+//-------------------------------------------------------------------------------
+  always @(*) begin
+      dmem_wr = (enable) ? dmem_wr : acc_wenb;
+  end
+
+  always @(*) begin
+      dmem_rd = (enable) ? dmem_rd : acc_renb;
+  end
+    
+  always @(*) begin
+      data_writedata = (enable) ? data_writedata : data_out;
+  end
 //-------------------------------------------------------------------------------
 // Memory instantiation
 //-------------------------------------------------------------------------------
