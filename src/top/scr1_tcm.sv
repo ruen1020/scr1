@@ -58,6 +58,7 @@ logic                               mux_dem_rd;
 logic                               mux_dem_wr;
 logic [$clog2(SCR1_TCM_SIZE)-1:2]   mux_addr_mem;
 logic [3:0]                         acc_webb; 
+logic [$clog2(SCR1_TCM_SIZE)-1:2]   addr_mem;
 //-------------------------------------------------------------------------------
 // Core interface
 //-------------------------------------------------------------------------------
