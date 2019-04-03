@@ -54,11 +54,12 @@ logic                               acc_renb;
 logic                               enable;
 logic [`SCR1_DMEM_DWIDTH-1:0]       data_out;
 logic [`SCR1_DMEM_DWIDTH-1:0]       mux_dmem_writedata;
-logic                               mux_dem_rd;
-logic                               mux_dem_wr;
+logic                               mux_dmem_rd;
+logic                               mux_dmem_wr;
 logic [$clog2(SCR1_TCM_SIZE)-1:2]   mux_addr_mem;
 logic [3:0]                         acc_webb; 
 logic [$clog2(SCR1_TCM_SIZE)-1:2]   addr_mem;
+logic [3:0]                         mux_webb;
 //-------------------------------------------------------------------------------
 // Core interface
 //-------------------------------------------------------------------------------
@@ -99,13 +100,13 @@ ACC #(
     .wenb(acc_wenb),
     .renb(acc_renb),
     .addr_mem(addr_mem),
-    .webb(acc_webb)
+    .webb_out(acc_webb)
 );
 //-------------------------------------------------------------------------------
 // Memory data composing
 //-------------------------------------------------------------------------------
-assign imem_rd  = imem_req;
-assign dmem_rd  = dmem_req & (dmem_cmd == SCR1_MEM_CMD_RD);
+assign imem_rd  = 1'b1;
+assign dmem_rd  = 1'b1;
 assign dmem_wr  = dmem_req & (dmem_cmd == SCR1_MEM_CMD_WR);
 
 always_comb begin
@@ -183,3 +184,4 @@ assign dmem_rdata = dmem_rdata_local >> ( 8 * dmem_rdata_shift_reg );
 endmodule : scr1_tcm
 
 `endif // SCR1_TCM_EN
+
