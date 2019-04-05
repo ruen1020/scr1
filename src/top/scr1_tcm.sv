@@ -129,23 +129,23 @@ end
 // Mux
 //-------------------------------------------------------------------------------
   always @(*) begin
-      mux_dmem_wr = (enable) ? dmem_wr : acc_wenb;
+      mux_dmem_wr = (!enable) ? dmem_wr : acc_wenb;
   end
 
   always @(*) begin
-      mux_dmem_rd = (enable) ? dmem_rd : acc_renb;
+      mux_dmem_rd = (!enable) ? dmem_rd : acc_renb;
   end
     
   always @(*) begin
-      mux_dmem_writedata = (enable) ? dmem_writedata : data_out;
+      mux_dmem_writedata = (!enable) ? dmem_writedata : data_out;
   end
 
   always @(*) begin
-      mux_addr_mem = (enable) ? dmem_addr[$clog2(SCR1_TCM_SIZE)-1:2] : addr_mem;
+      mux_addr_mem = (!enable) ? dmem_addr[$clog2(SCR1_TCM_SIZE)-1:2] : addr_mem;
   end
 
   always @(*) begin
-      mux_webb = (enable) ? dmem_byteen : acc_webb;
+      mux_webb = (!enable) ? dmem_byteen : acc_webb;
   end
     
 //-------------------------------------------------------------------------------
